@@ -64,5 +64,15 @@ public class FlashLight : MonoBehaviour
         {
             hasPin = false;
         }
+        if(_pin <= (3f/10f)*Pin)
+        {
+            intensity = 1f;
+            flashLight.intensity = intensity;
+        }
+        else
+        {
+            intensity = 2f;
+            flashLight.intensity = intensity;
+        }
     }
 }
