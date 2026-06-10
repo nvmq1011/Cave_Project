@@ -4,15 +4,30 @@ using UnityEngine;
 
 public class GunController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private PlayerMoveController controller;
+
+    [SerializeField] private int bulletNumber;
+    [SerializeField] private float reloadTimes = 1.5f;
+    private float _reloadTime;
+    private void Update()
+    {
+        _reloadTime += Time.fixedDeltaTime;
+        if (Input.GetKeyDown(KeyCode.Mouse0) && bulletNumber > 0)
+        {
+            Shoot();
+        }
+    }
+    void Shoot()
     {
         
+        if (_reloadTime < reloadTimes) return;
+        _reloadTime = 0;
+        BulletCheck(-1);
+        controller.RecoilFire();
     }
 
-    // Update is called once per frame
-    void Update()
+    void BulletCheck(int changeBullet)
     {
-        
+        bulletNumber += changeBullet;
     }
 }

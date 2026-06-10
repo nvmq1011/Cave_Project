@@ -4,25 +4,42 @@ using UnityEngine;
 
 public class PlayerMoveController : MonoBehaviour
 {
+    [Header("Movement")]
     public float moveSpeed = 5f;
     public float mouseSensitivity = 100f;
     public Transform playerCamera;
 
-    float gravity = -9.81f;
-    float yVelocity;
+    [Header("Recoil")]
+    public float recoilAmount = 20f;
+    public float recoilSpeed = 60f;
+    public float recoilReturnSpeed = 4f;
 
-    float xRotation = 0f;
-    CharacterController controller;
+    private float gravity = -9.81f;
+    private float yVelocity;
+
+    private float xRotation = 0f;
+    private CharacterController controller;
+
+    // Recoil
+    private float recoilOffset;
+    private float recoilTarget;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
 
-        Cursor.lockState = CursorLockMode.Locked; // khóa chuột
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()
     {
+        // Hạ recoil dần về 0
+        recoilTarget = Mathf.Lerp(
+            recoilTarget,
+            0f,
+            recoilReturnSpeed * Time.deltaTime);
+
         Look();
         Move();
     }
@@ -32,13 +49,20 @@ public class PlayerMoveController : MonoBehaviour
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        // Xoay lên xuống (Camera)
+        // Nhìn lên xuống
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        playerCamera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        // Recoil mượt
+        recoilOffset = Mathf.Lerp(
+            recoilOffset,
+            recoilTarget,
+            recoilSpeed * Time.deltaTime);
 
-        // Xoay trái phải (Player)
+        playerCamera.localRotation =
+            Quaternion.Euler(xRotation + recoilOffset, 0f, 0f);
+
+        // Nhìn trái phải
         transform.Rotate(Vector3.up * mouseX);
     }
 
@@ -59,5 +83,10 @@ public class PlayerMoveController : MonoBehaviour
         move.y = yVelocity;
 
         controller.Move(move * moveSpeed * Time.deltaTime);
+    }
+
+    public void RecoilFire()
+    {
+        recoilTarget -= recoilAmount;
     }
 }
